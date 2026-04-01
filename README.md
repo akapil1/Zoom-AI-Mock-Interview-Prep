@@ -51,18 +51,21 @@ This project is being developed as part of the **Zoom Fellowship at ASU**, with 
 ---
 
 ## Project Structure
+
+```
 ai-interview-prep/
 │
 ├── app/
-│ ├── upload/ # Resume upload flow
-│ ├── interview/ # Interview simulation UI
-│ ├── review/ # Review responses
-│ ├── feedback/ # Feedback output
-│ └── api/ # Backend routes
+│   ├── upload/        # Resume upload flow
+│   ├── interview/     # Interview simulation UI
+│   ├── review/        # Review responses
+│   ├── feedback/      # Feedback output
+│   └── api/           # Backend routes
 │
-├── public/ # Static assets
-├── package.json # Dependencies
+├── public/            # Static assets
+├── package.json       # Dependencies
 └── README.md
+```
 
 ---
 
