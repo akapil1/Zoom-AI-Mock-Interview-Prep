@@ -6,6 +6,14 @@ import mammoth from "mammoth";
 
 type UploadType = "resume" | "jd";
 
+const manualQuestions = [
+  "Tell me about yourself.",
+  "Why are you interested in this role?",
+  "Describe a time you solved a challenging problem.",
+  "Tell me about a time you worked effectively in a team.",
+  "What is one of your greatest strengths, and how has it helped you succeed?",
+];
+
 export default function UploadPage() {
   const router = useRouter();
 
@@ -22,7 +30,7 @@ export default function UploadPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const canGenerate = useMemo(() => {
+  const canContinue = useMemo(() => {
     return resumeText.trim().length > 20 && jdText.trim().length > 20;
   }, [resumeText, jdText]);
 
@@ -94,12 +102,8 @@ export default function UploadPage() {
     }
   };
 
-  const handleGenerate = async () => {
-    console.log("Generate clicked");
-    console.log("Resume length:", resumeText.trim().length);
-    console.log("JD length:", jdText.trim().length);
-
-    if (!canGenerate) {
+  const handleStartInterview = () => {
+    if (!canContinue) {
       setError("Please provide both a meaningful resume and job description before continuing.");
       return;
     }
@@ -108,37 +112,13 @@ export default function UploadPage() {
       setSubmitting(true);
       setError("");
 
-      alert("Button click is working. Now generating questions...");
-
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          resume: resumeText,
-          jd: jdText,
-        }),
-      });
-
-      const data = await res.json();
-
-      console.log("API response:", data);
-
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to generate interview questions.");
-      }
-
       sessionStorage.setItem("resumeText", resumeText);
       sessionStorage.setItem("jdText", jdText);
-      sessionStorage.setItem(
-        "generatedQuestions",
-        JSON.stringify(data.questions)
-      );
+      sessionStorage.setItem("generatedQuestions", JSON.stringify(manualQuestions));
+      sessionStorage.removeItem("interviewAnswers");
 
-      router.push("/review");
+      router.push("/interview");
     } catch (err) {
-      console.error("Generate error:", err);
       setError(
         err instanceof Error
           ? err.message
@@ -160,7 +140,7 @@ export default function UploadPage() {
             Start Your Mock Interview
           </h1>
           <p className="mt-3 text-gray-600">
-            Paste your content or upload files to personalize the interview.
+            Upload or paste your resume and job description to begin.
           </p>
         </div>
 
@@ -268,26 +248,26 @@ export default function UploadPage() {
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-gray-500">
-            <p>Next step: generate and review personalized interview questions.</p>
+            <p>Next step: begin the live mock interview.</p>
             <p className="mt-1">
-              Ready to generate:{" "}
-              <span className={canGenerate ? "font-semibold text-green-600" : "font-semibold text-red-600"}>
-                {canGenerate ? "Yes" : "No"}
+              Ready to continue:{" "}
+              <span className={canContinue ? "font-semibold text-green-600" : "font-semibold text-red-600"}>
+                {canContinue ? "Yes" : "No"}
               </span>
             </p>
           </div>
 
           <button
             type="button"
-            onClick={handleGenerate}
-            disabled={!canGenerate || submitting}
+            onClick={handleStartInterview}
+            disabled={!canContinue || submitting}
             className={`w-full rounded-xl px-6 py-3 text-lg font-semibold text-white transition sm:w-auto ${
-              !canGenerate || submitting
+              !canContinue || submitting
                 ? "cursor-not-allowed bg-gray-400 opacity-70"
                 : "bg-[#2D8CFF] hover:bg-[#1a73e8]"
             }`}
           >
-            {submitting ? "Generating..." : "Generate Interview Questions"}
+            {submitting ? "Starting..." : "Start Interview"}
           </button>
         </div>
       </div>
