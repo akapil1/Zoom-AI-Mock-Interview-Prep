@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f4f7fb;
   --foreground: #171717;
+  --panel: #ffffff;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --primary: #2d8cff;
+  --primary-dark: #1a73e8;
 }
 
 @theme inline {
@@ -14,13 +19,117 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0b1220;
     --foreground: #ededed;
+    --panel: #111827;
+    --muted: #9ca3af;
+    --border: #1f2937;
+    --primary: #60a5fa;
+    --primary-dark: #3b82f6;
   }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Main Zoom side-panel shell */
+.zoom-shell {
+  width: 100%;
+}
+
+/* Better defaults for small panel layouts */
+main {
+  width: 100%;
+}
+
+/* Smooth readable typography for narrow panels */
+h1 {
+  line-height: 1.15;
+}
+
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.5;
+}
+
+/* Better scrolling inside Zoom side panel */
+* {
+  box-sizing: border-box;
+}
+
+textarea,
+input,
+button {
+  font: inherit;
+}
+
+/* Optional utility classes you can reuse on pages */
+.panel-page {
+  min-height: 100vh;
+  padding: 16px;
+  background: var(--background);
+}
+
+.panel-card {
+  width: 100%;
+  border-radius: 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.panel-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.panel-subtitle {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.panel-section {
+  margin-top: 18px;
+}
+
+.panel-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .panel-page {
+    padding: 20px;
+  }
+
+  .panel-card {
+    padding: 20px;
+  }
+
+  .panel-actions {
+    flex-direction: row;
+  }
 }
