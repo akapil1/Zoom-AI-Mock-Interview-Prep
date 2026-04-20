@@ -71,7 +71,9 @@ function includesAny(text: string, patterns: string[]) {
 function countFillerWords(text: string) {
   const lower = text.toLowerCase();
   return fillerWords.reduce((count, word) => {
-    const matches = lower.match(new RegExp(`\\b${word.replace(/\s+/g, "\\s+")}\\b`, "g"));
+    const matches = lower.match(
+      new RegExp(`\\b${word.replace(/\s+/g, "\\s+")}\\b`, "g")
+    );
     return count + (matches ? matches.length : 0);
   }, 0);
 }
@@ -321,6 +323,23 @@ function averageScore(items: FeedbackItem[], key: keyof ScoreCard) {
   return Math.round((total / items.length) * 10) / 10;
 }
 
+function ScorePill({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white px-3 py-2">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-gray-500">
+        {label}
+      </p>
+      <p className="mt-1 text-base font-bold text-[#111827]">{value}/10</p>
+    </div>
+  );
+}
+
 export default function FeedbackPage() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
@@ -392,121 +411,120 @@ export default function FeedbackPage() {
   }, [feedbackItems]);
 
   return (
-    <main className="min-h-screen bg-[#f4f7fb] px-6 py-10">
-      <div className="mx-auto max-w-6xl rounded-3xl bg-white p-8 shadow-xl md:p-10">
-        <p className="text-sm font-semibold uppercase tracking-wide text-[#2D8CFF]">
-          Step 3
-        </p>
+    <main className="min-h-screen bg-[#f4f7fb] px-3 py-3">
+      <div className="mx-auto w-full max-w-[420px] rounded-[24px] bg-white p-4 shadow-lg sm:p-5">
+        <div className="border-b border-gray-100 pb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#2D8CFF]">
+            Step 3
+          </p>
 
-        <h1 className="mt-2 text-3xl font-bold text-[#1a1a1a]">
-          AI Interview Feedback
-        </h1>
+          <h1 className="mt-2 text-xl font-bold leading-tight text-[#111827]">
+            AI Interview Feedback
+          </h1>
 
-        <p className="mt-3 text-gray-600">
-          This is a hardcoded coaching layer that simulates intelligent interview feedback.
-        </p>
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            Review your answer quality, coaching tips, and a stronger sample response.
+          </p>
+        </div>
 
         {summary && (
-          <section className="mt-8 rounded-3xl border border-gray-200 bg-[#f8fafc] p-6">
-            <h2 className="text-2xl font-bold text-[#111827]">Overall Summary</h2>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-5">
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <p className="text-sm text-gray-500">Relevance</p>
-                <p className="mt-2 text-2xl font-bold text-[#111827]">{summary.avgRelevance}/10</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <p className="text-sm text-gray-500">Structure</p>
-                <p className="mt-2 text-2xl font-bold text-[#111827]">{summary.avgStructure}/10</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <p className="text-sm text-gray-500">Specificity</p>
-                <p className="mt-2 text-2xl font-bold text-[#111827]">{summary.avgSpecificity}/10</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <p className="text-sm text-gray-500">Impact</p>
-                <p className="mt-2 text-2xl font-bold text-[#111827]">{summary.avgImpact}/10</p>
-              </div>
-              <div className="rounded-2xl bg-white p-4 shadow-sm">
-                <p className="text-sm text-gray-500">Confidence</p>
-                <p className="mt-2 text-2xl font-bold text-[#111827]">{summary.avgConfidence}/10</p>
+          <section className="mt-4 rounded-2xl border border-gray-200 bg-[#f8fafc] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-[#111827]">Overall Summary</h2>
+                <p className="mt-1 text-xs text-gray-500">
+                  Compact score snapshot for this interview.
+                </p>
               </div>
             </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
-                <p className="text-sm font-semibold text-green-700">Strongest Area</p>
-                <p className="mt-2 text-lg font-bold text-[#111827]">{summary.strongestArea}</p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <ScorePill label="Relevance" value={summary.avgRelevance} />
+              <ScorePill label="Structure" value={summary.avgStructure} />
+              <ScorePill label="Specificity" value={summary.avgSpecificity} />
+              <ScorePill label="Impact" value={summary.avgImpact} />
+              <div className="col-span-2">
+                <ScorePill label="Confidence" value={summary.avgConfidence} />
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <div className="rounded-xl border border-green-200 bg-green-50 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-green-700">
+                  Strongest Area
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#111827]">
+                  {summary.strongestArea}
+                </p>
               </div>
 
-              <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-5">
-                <p className="text-sm font-semibold text-yellow-700">Weakest Area</p>
-                <p className="mt-2 text-lg font-bold text-[#111827]">{summary.weakestArea}</p>
+              <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-yellow-700">
+                  Weakest Area
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#111827]">
+                  {summary.weakestArea}
+                </p>
               </div>
 
-              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
-                <p className="text-sm font-semibold text-blue-700">Main Coaching Insight</p>
-                <p className="mt-2 text-sm text-[#111827]">{summary.mostCommonIssue}</p>
+              <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+                  Main Coaching Insight
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[#111827]">
+                  {summary.mostCommonIssue}
+                </p>
               </div>
             </div>
           </section>
         )}
 
-        <section className="mt-10 space-y-8">
+        <section className="mt-5 space-y-4">
           {feedbackItems.map((item, index) => (
             <div
               key={index}
-              className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
             >
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <p className="text-sm font-medium text-[#2D8CFF]">
-                    Question {index + 1}
-                  </p>
-                  <h2 className="mt-2 text-xl font-bold text-[#111827]">
-                    {item.question}
-                  </h2>
-                  <p className="mt-2 inline-flex rounded-full bg-[#2D8CFF]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#2D8CFF]">
-                    {item.questionType}
-                  </p>
-                </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#2D8CFF]">
+                  Question {index + 1}
+                </p>
+
+                <h2 className="mt-2 text-base font-bold leading-6 text-[#111827]">
+                  {item.question}
+                </h2>
+
+                <p className="mt-2 inline-flex rounded-full bg-[#2D8CFF]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#2D8CFF]">
+                  {item.questionType}
+                </p>
               </div>
 
-              <div className="mt-6 rounded-2xl bg-[#f8fafc] p-5">
-                <p className="text-sm font-semibold text-gray-500">Your Answer</p>
-                <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-gray-700">
+              <div className="mt-4 rounded-xl bg-[#f8fafc] p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  Your Answer
+                </p>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-700">
                   {item.answer || "No spoken answer captured."}
                 </p>
               </div>
 
-              <div className="mt-6 grid gap-4 md:grid-cols-5">
-                <div className="rounded-2xl border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Relevance</p>
-                  <p className="mt-2 text-2xl font-bold text-[#111827]">{item.scores.relevance}/10</p>
-                </div>
-                <div className="rounded-2xl border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Structure</p>
-                  <p className="mt-2 text-2xl font-bold text-[#111827]">{item.scores.structure}/10</p>
-                </div>
-                <div className="rounded-2xl border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Specificity</p>
-                  <p className="mt-2 text-2xl font-bold text-[#111827]">{item.scores.specificity}/10</p>
-                </div>
-                <div className="rounded-2xl border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Impact</p>
-                  <p className="mt-2 text-2xl font-bold text-[#111827]">{item.scores.impact}/10</p>
-                </div>
-                <div className="rounded-2xl border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Confidence</p>
-                  <p className="mt-2 text-2xl font-bold text-[#111827]">{item.scores.confidence}/10</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <ScorePill label="Relevance" value={item.scores.relevance} />
+                <ScorePill label="Structure" value={item.scores.structure} />
+                <ScorePill label="Specificity" value={item.scores.specificity} />
+                <ScorePill label="Impact" value={item.scores.impact} />
+                <div className="col-span-2">
+                  <ScorePill label="Confidence" value={item.scores.confidence} />
                 </div>
               </div>
 
               {item.starBreakdown && (
-                <div className="mt-6 rounded-2xl border border-gray-200 bg-[#f8fafc] p-5">
-                  <p className="text-sm font-semibold text-gray-500">STAR Breakdown</p>
+                <div className="mt-4 rounded-xl border border-gray-200 bg-[#f8fafc] p-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    STAR Breakdown
+                  </p>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                  <div className="mt-3 grid grid-cols-2 gap-2">
                     {[
                       ["Situation", item.starBreakdown.situation],
                       ["Task", item.starBreakdown.task],
@@ -515,65 +533,67 @@ export default function FeedbackPage() {
                     ].map(([label, ok]) => (
                       <div
                         key={label}
-                        className={`rounded-xl px-4 py-3 text-sm font-medium ${
+                        className={`rounded-xl px-3 py-2 text-xs font-medium ${
                           ok
                             ? "border border-green-200 bg-green-50 text-green-700"
                             : "border border-red-200 bg-red-50 text-red-700"
                         }`}
                       >
-                        {label}: {ok ? "Present" : "Missing / Weak"}
+                        {label}: {ok ? "Present" : "Weak"}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
-                  <h3 className="text-lg font-semibold text-green-700">What Went Well</h3>
-                  <div className="mt-3 space-y-2 text-sm text-gray-700">
+              <div className="mt-4 space-y-3">
+                <div className="rounded-xl border border-green-200 bg-green-50 p-3">
+                  <h3 className="text-sm font-semibold text-green-700">What Went Well</h3>
+                  <div className="mt-2 space-y-2 text-sm leading-6 text-gray-700">
                     {item.strengths.map((point, i) => (
                       <p key={i}>• {point}</p>
                     ))}
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-5">
-                  <h3 className="text-lg font-semibold text-yellow-700">What To Improve</h3>
-                  <div className="mt-3 space-y-2 text-sm text-gray-700">
+                <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-3">
+                  <h3 className="text-sm font-semibold text-yellow-700">What To Improve</h3>
+                  <div className="mt-2 space-y-2 text-sm leading-6 text-gray-700">
                     {item.improvements.map((point, i) => (
                       <p key={i}>• {point}</p>
                     ))}
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
-                  <h3 className="text-lg font-semibold text-blue-700">Next Attempt Tip</h3>
-                  <p className="mt-3 text-sm leading-7 text-gray-700">{item.nextTip}</p>
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-3">
+                  <h3 className="text-sm font-semibold text-blue-700">Next Attempt Tip</h3>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">{item.nextTip}</p>
                 </div>
 
-                <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5">
-                  <h3 className="text-lg font-semibold text-purple-700">Stronger Sample Answer</h3>
-                  <p className="mt-3 text-sm leading-7 text-gray-700">{item.betterAnswer}</p>
+                <div className="rounded-xl border border-purple-200 bg-purple-50 p-3">
+                  <h3 className="text-sm font-semibold text-purple-700">
+                    Stronger Sample Answer
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-gray-700">
+                    {item.betterAnswer}
+                  </p>
                 </div>
               </div>
             </div>
           ))}
         </section>
 
-        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+        <div className="mt-5 flex flex-col gap-2">
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition hover:border-[#2D8CFF] hover:text-[#2D8CFF]"
+            className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-[#2D8CFF] hover:text-[#2D8CFF]"
           >
             Back to Home
           </Link>
 
           <Link
             href="/upload"
-            className="inline-flex items-center justify-center rounded-xl bg-[#2D8CFF] px-6 py-3 font-semibold text-white transition hover:bg-[#1a73e8]"
+            className="inline-flex items-center justify-center rounded-xl bg-[#2D8CFF] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1a73e8]"
           >
             Try Another Interview
           </Link>
