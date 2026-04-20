@@ -227,7 +227,7 @@ export default function InterviewPage() {
 
   if (questions.length === 0) {
     return (
-      <main className="min-h-screen bg-[#f4f7fb] px-6 py-10">
+      <main className="min-h-screen bg-[#f4f7fb] px-4 py-4">
         <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-xl">
           <h1 className="text-2xl font-bold text-[#1a1a1a]">No interview loaded</h1>
           <p className="mt-3 text-gray-600">
@@ -246,12 +246,12 @@ export default function InterviewPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f7fb] px-6 py-10">
-      <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-xl md:p-10">
+      <div className="mx-auto w-full max-w-[520px] rounded-2xl bg-white p-5 shadow-lg">
         <p className="text-sm font-semibold uppercase tracking-wide text-[#2D8CFF]">
           Step 2
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold text-[#1a1a1a]">
+        <h1 className="mt-2 text-2xl font-bold text-[#1a1a1a]">
           AI Mock Interview
         </h1>
 
@@ -289,7 +289,7 @@ export default function InterviewPage() {
 
           <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-5">
             <p className="text-sm font-medium text-blue-700">Interviewer Question</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#111827]">
+            <h2 className="mt-2 text-xl font-semibold text-[#111827]">
               {currentQuestion}
             </h2>
             <p className="mt-3 text-sm text-blue-800">
