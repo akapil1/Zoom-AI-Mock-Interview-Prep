@@ -49,7 +49,9 @@ export default function FeedbackPage() {
         const jd = sessionStorage.getItem("jdText") || "";
 
         if (!storedQuestions || !storedAnswers) {
-          throw new Error("Interview data was not found. Please complete the interview first.");
+          throw new Error(
+            "Interview data was not found. Please complete the interview first."
+          );
         }
 
         const questions = JSON.parse(storedQuestions);
@@ -154,7 +156,9 @@ export default function FeedbackPage() {
         </div>
 
         <section className="mt-4 rounded-2xl border border-gray-200 bg-[#f8fafc] p-4">
-          <h2 className="text-base font-bold text-[#111827]">Overall Summary</h2>
+          <h2 className="text-base font-bold text-[#111827]">
+            Overall Summary
+          </h2>
 
           <p className="mt-2 text-sm leading-6 text-gray-700">
             {feedback.overallSummary}
@@ -188,7 +192,7 @@ export default function FeedbackPage() {
         <section className="mt-5 space-y-4">
           {feedback.items.map((item, index) => (
             <div
-              key={index}
+              key={`feedback-item-${index}`}
               className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
             >
               <p className="text-xs font-semibold uppercase tracking-wide text-[#2D8CFF]">
@@ -219,7 +223,7 @@ export default function FeedbackPage() {
                   </h3>
                   <div className="mt-2 space-y-2 text-sm leading-6 text-gray-700">
                     {item.whatWentWell.map((point, i) => (
-                      <p key={i}>• {point}</p>
+                      <p key={`went-well-${index}-${i}`}>• {point}</p>
                     ))}
                   </div>
                 </div>
@@ -230,7 +234,7 @@ export default function FeedbackPage() {
                   </h3>
                   <div className="mt-2 space-y-2 text-sm leading-6 text-gray-700">
                     {item.whatToImprove.map((point, i) => (
-                      <p key={i}>• {point}</p>
+                      <p key={`improve-${index}-${i}`}>• {point}</p>
                     ))}
                   </div>
                 </div>
