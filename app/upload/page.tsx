@@ -4,14 +4,6 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const manualQuestions = [
-  "Tell me about yourself.",
-  "Why are you interested in this role?",
-  "Describe a time you solved a challenging problem.",
-  "Tell me about a time you worked effectively in a team.",
-  "What is one of your greatest strengths, and how has it helped you succeed?",
-];
-
 export default function UploadPage() {
   const router = useRouter();
 
@@ -24,7 +16,7 @@ export default function UploadPage() {
     return resumeText.trim().length > 20 && jdText.trim().length > 20;
   }, [resumeText, jdText]);
 
-  const handleStartInterview = () => {
+  const handleStartInterview = async () => {
     if (!canContinue) {
       setError(
         "Please provide both a meaningful resume and job description before continuing."
@@ -36,11 +28,32 @@ export default function UploadPage() {
       setSubmitting(true);
       setError("");
 
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resume: resumeText,
+          jd: jdText,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate questions.");
+      }
+
+      if (!data.questions || !Array.isArray(data.questions)) {
+        throw new Error("Invalid question format returned from API.");
+      }
+
       sessionStorage.setItem("resumeText", resumeText);
       sessionStorage.setItem("jdText", jdText);
       sessionStorage.setItem(
         "generatedQuestions",
-        JSON.stringify(manualQuestions)
+        JSON.stringify(data.questions)
       );
       sessionStorage.removeItem("interviewAnswers");
 
@@ -49,7 +62,7 @@ export default function UploadPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to continue. Please try again."
+          : "Unable to generate questions. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -59,9 +72,7 @@ export default function UploadPage() {
   return (
     <main className="min-h-screen bg-[#f4f7fb] px-4 py-4">
       <div className="mx-auto w-full max-w-[520px] rounded-2xl bg-white p-5 shadow-lg">
-
-        {/* HEADER WITH CANCEL */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-[#2D8CFF]">
               Step 1
@@ -81,7 +92,8 @@ export default function UploadPage() {
         </div>
 
         <p className="mb-5 text-sm text-gray-600">
-          Paste your resume and job description to begin.
+          Paste your resume and job description. AI will generate personalized
+          interview questions for you.
         </p>
 
         {error && (
@@ -90,7 +102,6 @@ export default function UploadPage() {
           </div>
         )}
 
-        {/* RESUME */}
         <section className="space-y-3">
           <label className="block text-sm font-semibold text-gray-700">
             Resume
@@ -109,7 +120,6 @@ export default function UploadPage() {
           </p>
         </section>
 
-        {/* JOB DESCRIPTION */}
         <section className="mt-6 space-y-3">
           <label className="block text-sm font-semibold text-gray-700">
             Job Description
@@ -128,7 +138,6 @@ export default function UploadPage() {
           </p>
         </section>
 
-        {/* STATUS */}
         <div className="mt-6 rounded-xl border border-gray-200 bg-[#f8fafc] px-4 py-4">
           <p className="text-sm text-gray-600">
             Ready to continue:{" "}
@@ -144,7 +153,6 @@ export default function UploadPage() {
           </p>
         </div>
 
-        {/* CTA */}
         <div className="mt-6">
           <button
             type="button"
@@ -156,7 +164,7 @@ export default function UploadPage() {
                 : "bg-[#2D8CFF] hover:bg-[#1a73e8]"
             }`}
           >
-            {submitting ? "Starting..." : "Start Interview"}
+            {submitting ? "Generating Questions..." : "Generate AI Interview"}
           </button>
         </div>
       </div>

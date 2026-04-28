@@ -11,9 +11,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const openai = new OpenAI({
-      apiKey,
-    });
+    const openai = new OpenAI({ apiKey });
 
     const body = await req.json();
     const resume = body.resume?.trim();
@@ -29,7 +27,7 @@ export async function POST(req: Request) {
     const prompt = `
 You are an expert interview coach and recruiter.
 
-Using the candidate's resume and the job description below, generate 5 personalized interview questions.
+Using the candidate's resume and the job description below, generate exactly 5 personalized interview questions.
 
 Requirements:
 - Questions must be specific to the job description
@@ -49,12 +47,7 @@ ${jd}
 
     const response = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
     });
 
@@ -66,6 +59,7 @@ ${jd}
       questions = JSON.parse(content);
     } catch {
       questions = content
+        .replace(/```json|```/g, "")
         .split("\n")
         .map((line) => line.replace(/^\d+[\).\s-]*/, "").trim())
         .filter(Boolean)
@@ -79,7 +73,7 @@ ${jd}
       );
     }
 
-    return Response.json({ questions });
+    return Response.json({ questions: questions.slice(0, 5) });
   } catch (error) {
     console.error("Generate API error:", error);
 

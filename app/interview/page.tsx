@@ -60,7 +60,6 @@ export default function InterviewPage() {
   const [error, setError] = useState("");
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const hasAutoSpokenRef = useRef(false);
 
   useEffect(() => {
     const storedQuestions = sessionStorage.getItem("generatedQuestions");
@@ -99,7 +98,9 @@ export default function InterviewPage() {
 
     recognition.onerror = (event) => {
       setIsListening(false);
-      setError(`Voice input error: ${event.error}`);
+      setError(
+        `Voice input error: ${event.error}. You can type your answer below instead.`
+      );
     };
 
     recognition.onresult = (event) => {
@@ -137,6 +138,15 @@ export default function InterviewPage() {
   }, [currentIndex]);
 
   const currentQuestion = questions[currentIndex] || "";
+  const currentAnswer = answers[currentIndex] || "";
+
+  const updateCurrentAnswer = (value: string) => {
+    setAnswers((prev) => {
+      const updated = [...prev];
+      updated[currentIndex] = value;
+      return updated;
+    });
+  };
 
   const speakQuestion = (text: string) => {
     if (!text || typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -150,17 +160,9 @@ export default function InterviewPage() {
     utterance.pitch = 1;
     utterance.volume = 1;
 
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-    };
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
 
     window.speechSynthesis.speak(utterance);
   };
@@ -169,11 +171,9 @@ export default function InterviewPage() {
     if (!currentQuestion) return;
 
     setInterimTranscript("");
-    hasAutoSpokenRef.current = false;
 
     const timer = setTimeout(() => {
       speakQuestion(currentQuestion);
-      hasAutoSpokenRef.current = true;
     }, 700);
 
     return () => clearTimeout(timer);
@@ -191,7 +191,7 @@ export default function InterviewPage() {
 
   const startListening = () => {
     if (!recognitionRef.current) {
-      setError("Speech recognition is not available in this browser.");
+      setError("Speech recognition is not available here. Please type your answer below.");
       return;
     }
 
@@ -199,7 +199,7 @@ export default function InterviewPage() {
       setInterimTranscript("");
       recognitionRef.current.start();
     } catch {
-      setError("Microphone could not start. Please try again.");
+      setError("Microphone could not start. Please type your answer below instead.");
     }
   };
 
@@ -207,8 +207,13 @@ export default function InterviewPage() {
     recognitionRef.current?.stop();
   };
 
+  const saveAnswers = () => {
+    sessionStorage.setItem("interviewAnswers", JSON.stringify(answers));
+  };
+
   const handleNext = () => {
     stopListening();
+    saveAnswers();
 
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
@@ -222,7 +227,7 @@ export default function InterviewPage() {
       window.speechSynthesis.cancel();
     }
 
-    sessionStorage.setItem("interviewAnswers", JSON.stringify(answers));
+    saveAnswers();
   };
 
   if (questions.length === 0) {
@@ -245,7 +250,7 @@ export default function InterviewPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f4f7fb] px-6 py-10">
+    <main className="min-h-screen bg-[#f4f7fb] px-4 py-6">
       <div className="mx-auto w-full max-w-[520px] rounded-2xl bg-white p-5 shadow-lg">
         <p className="text-sm font-semibold uppercase tracking-wide text-[#2D8CFF]">
           Step 2
@@ -256,13 +261,13 @@ export default function InterviewPage() {
         </h1>
 
         <p className="mt-3 text-gray-600">
-          Listen to each interview question, then answer verbally using your microphone.
+          Listen to the question, then answer by voice or type your response below.
         </p>
 
         {!speechSupported && (
           <div className="mt-6 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-            Voice input is not supported in this browser. For the best demo, use a browser
-            that supports speech recognition.
+            Voice input is not supported inside this browser environment. You can still
+            complete the interview by typing your answer.
           </div>
         )}
 
@@ -272,7 +277,7 @@ export default function InterviewPage() {
           </div>
         )}
 
-        <div className="mt-8 rounded-2xl border border-gray-200 bg-[#f8fafc] p-6">
+        <div className="mt-8 rounded-2xl border border-gray-200 bg-[#f8fafc] p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-medium text-[#2D8CFF]">
               Question {currentIndex + 1} of {questions.length}
@@ -288,13 +293,12 @@ export default function InterviewPage() {
           </div>
 
           <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-5">
-            <p className="text-sm font-medium text-blue-700">Interviewer Question</p>
+            <p className="text-sm font-medium text-blue-700">
+              Interviewer Question
+            </p>
             <h2 className="mt-2 text-xl font-semibold text-[#111827]">
               {currentQuestion}
             </h2>
-            <p className="mt-3 text-sm text-blue-800">
-              This question is spoken aloud for the user, and the answer is captured verbally.
-            </p>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -324,23 +328,26 @@ export default function InterviewPage() {
 
           <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5">
             <p className="text-sm font-medium text-[#2D8CFF]">
-              Live Transcript
+              Answer
             </p>
 
-            <div className="mt-3 min-h-[180px] rounded-xl bg-[#f8fafc] p-4 text-sm leading-7 text-gray-700">
-              {answers[currentIndex] || interimTranscript ? (
-                <>
-                  <span>{answers[currentIndex]}</span>
-                  {interimTranscript && (
-                    <span className="text-gray-400"> {interimTranscript}</span>
-                  )}
-                </>
-              ) : (
-                <span className="text-gray-400">
-                  Your spoken answer will appear here as live transcription.
-                </span>
-              )}
-            </div>
+            <textarea
+              value={
+                interimTranscript
+                  ? `${currentAnswer} ${interimTranscript}`.trim()
+                  : currentAnswer
+              }
+              onChange={(e) => {
+                setInterimTranscript("");
+                updateCurrentAnswer(e.target.value);
+              }}
+              placeholder="Type your answer here if voice input does not work inside Zoom..."
+              className="mt-3 min-h-[180px] w-full resize-none rounded-xl border border-gray-200 bg-[#f8fafc] p-4 text-sm leading-7 text-gray-700 outline-none transition focus:border-[#2D8CFF] focus:ring-2 focus:ring-blue-100"
+            />
+
+            <p className="mt-2 text-xs text-gray-500">
+              Your answer will be saved and used for AI feedback.
+            </p>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
